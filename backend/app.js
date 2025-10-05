@@ -38,18 +38,25 @@ async function fetchJoke(category) {
 }
 
 function deliverJoke(category, chatId) {
+  const options = {
+    reply_markup: {
+      inline_keyboard: [
+        [{text: "Next", callback_data: "next"}, {text: "Explain", callback_data: "explain"}]
+      ]
+    }
+  }
   fetchJoke(category)
     .then((res) => {
       console.log(res);
       if(Array.isArray(res)) {
         bot.sendMessage(chatId, res[0]);
         setTimeout(() => {
-          bot.sendMessage(chatId, res[1])
+          bot.sendMessage(chatId, res[1], options)
         }, 2000)
       } else {
         console.log(`Single type joke delivered: ${res}`)
         console.log({chatId})
-        bot.sendMessage(chatId, res)
+        bot.sendMessage(chatId, res, options)
       }
     })
     .catch ((err) => {
@@ -99,6 +106,19 @@ bot.onText(/\/category/, (msg) => {
 bot.onText(/\/dark/, async (msg) => {
   const chatId = msg.chat.id;
   deliverJoke('dark', chatId);
+})
+
+bot.on("callback_query", (query) => {
+  const data = query.data;
+  const chatId = query.message.chat.id;
+
+  if(data === "next") {
+    bot.sendMessage(chatId, "Next joke will be sent shortly.")
+  } else if(data === "explain") {
+    bot.sendMessage(chatId, "I will explain the joke shortly.")
+  }
+
+  bot.answerCallbackQuery(query.id)
 })
 
 app.listen(PORT, () => {

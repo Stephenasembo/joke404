@@ -8,7 +8,22 @@ const bot = new TelegramBot(telegramToken, {polling: true});
 
 app.get("/", (req, res) => {
   res.send("Hello welcome to joke404.")
-})
+});
+
+async function fetchJoke() {
+  const url = process.env.RANDOM_JOKE_ENDPOINT;
+  let response = await fetch(url, {
+    headers: {
+      "X-Api-Key": process.env.JOKE_X_API_KEY
+    }
+  });
+  console.log(response);
+  if(!response.ok) return res.status(500).send("Internal error.")
+  response = await response.json();
+  const joke = response[0].joke;
+  console.log(joke);
+  return joke;
+}
 
 bot.onText(/\/start/, (msg) => {
   const chatId = msg.chat.id;
@@ -32,12 +47,10 @@ bot.onText(/\/help/, (msg) => {
 
 bot.onText(/\/joke/, (msg) => {
   const chatId = msg.chat.id;
-  const resp = `
-  Why did the chicken cross the road?
-To get to the other side.
-  `
-
-  bot.sendMessage(chatId, resp);
+  fetchJoke()
+    .then((res) => {
+      bot.sendMessage(chatId, res)
+    })
 })
 
 bot.onText(/\/category/, (msg) => {

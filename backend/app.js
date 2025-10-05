@@ -17,6 +17,40 @@ bot.onText(/\/start/, (msg) => {
   bot.sendMessage(chatId, resp);
 });
 
+bot.onText(/\/help/, (msg) => {
+  const chatId = msg.chat.id;
+  const resp = `
+  Available commands:
+  /start - Welcome message
+  /joke - Get a random joke
+  /category - Pick a joke category
+  /help - SHow this list
+  `
+
+  bot.sendMessage(chatId, resp);
+});
+
+bot.onText(/\/joke/, (msg) => {
+  const chatId = msg.chat.id;
+  const resp = `
+  Why did the chicken cross the road?
+To get to the other side.
+  `
+
+  bot.sendMessage(chatId, resp);
+})
+
+bot.onText(/\/category/, (msg) => {
+  const chatId = msg.chat.id;
+  const resp = `
+  Pick a category of jokes from the below list:
+  /dadjokes
+  /pun
+  /darkhumour
+  `
+
+  bot.sendMessage(chatId, resp);
+})
 
 app.listen(PORT, () => {
   console.log(`App is live on port ${PORT}\nVisit http://localhost:${PORT}`)

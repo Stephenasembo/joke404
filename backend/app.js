@@ -10,18 +10,25 @@ app.get("/", (req, res) => {
   res.send("Hello welcome to joke404.")
 });
 
-async function fetchJoke() {
-  const url = process.env.RANDOM_JOKE_ENDPOINT;
-  let response = await fetch(url, {
-    headers: {
-      "X-Api-Key": process.env.JOKE_X_API_KEY
-    }
-  });
-  console.log(response);
-  if(!response.ok) return res.status(500).send("Internal error.")
+async function fetchJoke(category) {
+  let url = process.env.JOKE_ENDPOINT;
+  switch (category){
+    case 'dark':
+      url = url + 'Dark?type=single';
+      break;
+    case 'programming':
+      url = url + 'Programming?type=single';
+      break;
+    default:
+      url = url + 'Any?type=single';
+  }
+  console.log({url});
+  let response = await fetch(url);
+  if (!response.ok) return console.log("Internal error occured")
   response = await response.json();
-  const joke = response[0].joke;
-  console.log(joke);
+  console.log({response})
+  const joke = response.joke;
+  console.log({joke})
   return joke;
 }
 
@@ -47,7 +54,7 @@ bot.onText(/\/help/, (msg) => {
 
 bot.onText(/\/joke/, (msg) => {
   const chatId = msg.chat.id;
-  fetchJoke()
+  fetchJoke('')
     .then((res) => {
       bot.sendMessage(chatId, res)
     })

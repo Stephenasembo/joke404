@@ -1,5 +1,6 @@
 require("dotenv").config()
 const express = require("express")
+const {explainJoke} = require("./ai");
 const PORT = process.env.PORT || 3000;
 const app = express();
 const TelegramBot = require("node-telegram-bot-api");
@@ -26,44 +27,50 @@ async function fetchJoke(category) {
     let response = await fetch(url);
     if (!response.ok) return console.log("Internal error occured")
     response = await response.json();
+    let jokeContext ={category}
 
     if(response.type === "single") {
-      return response.joke;
+      jokeContext.content = response.joke;
+      jokeContext.parts = "single"
+      return jokeContext;
     }
     const joke = [response.setup, response.delivery];
-    return joke;
+    jokeContext.content = "" + joke[0] + joke[1];
+    jokeContext.parts = "two part"
+    jokeContext.joke = joke
+    return jokeContext;
   } catch(err) {
     console.error(err);
   }
 }
 
-function deliverJoke(category, chatId) {
-  const options = {
-    reply_markup: {
-      inline_keyboard: [
-        [{text: "Next", callback_data: "next"}, {text: "Explain", callback_data: "explain"}]
-      ]
-    }
-  }
-  fetchJoke(category)
-    .then((res) => {
-      console.log(res);
-      if(Array.isArray(res)) {
-        bot.sendMessage(chatId, res[0]);
-        setTimeout(() => {
-          bot.sendMessage(chatId, res[1], options)
-        }, 2000)
-      } else {
-        console.log(`Single type joke delivered: ${res}`)
-        console.log({chatId})
-        bot.sendMessage(chatId, res, options)
+async function deliverJoke(category, chatId) {
+  try{
+    const jokeContext = await fetchJoke(category);
+    const options = {
+      reply_markup: {
+        inline_keyboard: [
+          [{text: "Next", callback_data: JSON.stringify({action: "next", category})},
+          {text: "Explain", callback_data:  JSON.stringify({action: "explain"})}]
+        ]
       }
-    })
-    .catch ((err) => {
+    }
+
+    if(jokeContext.parts === "two part") {
+      bot.sendMessage(chatId, jokeContext.joke[0]);
+      setTimeout(() => {
+        bot.sendMessage(chatId, jokeContext.joke[1], options)
+      }, 2000)
+    } else {
+      console.log(`Single type joke delivered: ${res}`)
+      console.log({chatId})
+      bot.sendMessage(chatId, res, options)
+    }
+  } catch (err) {
       console.error(err);
       let response = "Sorry the joke can't be cracked right now.";
       bot.sendMessage(chatId, response)
-    })
+  }
 }
 
 
@@ -109,12 +116,12 @@ bot.onText(/\/dark/, async (msg) => {
 })
 
 bot.on("callback_query", (query) => {
-  const data = query.data;
+  const data = JSON.parse(query.data);
   const chatId = query.message.chat.id;
 
-  if(data === "next") {
-    bot.sendMessage(chatId, "Next joke will be sent shortly.")
-  } else if(data === "explain") {
+  if(data.action === "next") {
+    deliverJoke(data.category, chatId);
+  } else if(data.action === "explain") {
     bot.sendMessage(chatId, "I will explain the joke shortly.")
   }
 

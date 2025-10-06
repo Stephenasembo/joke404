@@ -11,6 +11,8 @@ app.get("/", (req, res) => {
   res.send("Hello welcome to joke404.")
 });
 
+const jokeStore = new Map();
+
 async function fetchJoke(category) {
   let url = process.env.JOKE_ENDPOINT;
   switch (category){
@@ -62,17 +64,15 @@ async function deliverJoke(category, chatId) {
         bot.sendMessage(chatId, jokeContext.joke[1], options)
       }, 2000)
     } else {
-      console.log(`Single type joke delivered: ${res}`)
-      console.log({chatId})
-      bot.sendMessage(chatId, res, options)
+      bot.sendMessage(chatId, jokeContext.content, options)
     }
+    jokeStore.set(chatId, jokeContext.content);
   } catch (err) {
       console.error(err);
       let response = "Sorry the joke can't be cracked right now.";
       bot.sendMessage(chatId, response)
   }
 }
-
 
 bot.onText(/\/start/, (msg) => {
   const chatId = msg.chat.id;
@@ -115,14 +115,16 @@ bot.onText(/\/dark/, async (msg) => {
   deliverJoke('dark', chatId);
 })
 
-bot.on("callback_query", (query) => {
+bot.on("callback_query", async (query) => {
   const data = JSON.parse(query.data);
   const chatId = query.message.chat.id;
 
   if(data.action === "next") {
     deliverJoke(data.category, chatId);
   } else if(data.action === "explain") {
-    bot.sendMessage(chatId, "I will explain the joke shortly.")
+    const joke = jokeStore.get(chatId);
+    const explanation = await explainJoke(joke);
+    bot.sendMessage(chatId, explanation)
   }
 
   bot.answerCallbackQuery(query.id)

@@ -74,6 +74,10 @@ async function deliverJoke(category, chatId) {
   }
 }
 
+async function removeInlineBtns(chatId, messageId) {
+  await bot.editMessageReplyMarkup({inline_keyboard: []}, {chat_id: chatId, message_id: messageId})
+}
+
 bot.onText(/\/start/, (msg) => {
   const chatId = msg.chat.id;
   const resp = "Hello welcome to joke404. The hub of jokes."
@@ -118,12 +122,15 @@ bot.onText(/\/dark/, async (msg) => {
 bot.on("callback_query", async (query) => {
   const data = JSON.parse(query.data);
   const chatId = query.message.chat.id;
+  const messageId = query.message.message_id
 
   if(data.action === "next") {
     deliverJoke(data.category, chatId);
+    await removeInlineBtns(chatId, messageId)
   } else if(data.action === "explain") {
     const joke = jokeStore.get(chatId);
     const explanation = await explainJoke(joke);
+    await removeInlineBtns(chatId, messageId)
     bot.sendMessage(chatId, explanation)
   }
 

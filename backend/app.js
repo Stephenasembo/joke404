@@ -48,12 +48,15 @@ async function fetchJoke(category) {
 
 async function deliverJoke(category, chatId) {
   try{
+    console.log({category})
     const jokeContext = await fetchJoke(category);
     const options = {
       reply_markup: {
         inline_keyboard: [
-          [{text: "Next", callback_data: JSON.stringify({action: "next", category})},
-          {text: "Explain", callback_data:  JSON.stringify({action: "explain"})}]
+          [{text: "Funny 😂", callback_data: JSON.stringify({action: "funny"})},
+          {text: "Not funny 🫤", callback_data:  JSON.stringify({action: "notFunny"})}],
+          [{text: "Next ➡️", callback_data: JSON.stringify({action: "next", category})},
+          {text: "Explain 💡", callback_data:  JSON.stringify({action: "explain"})}]
         ]
       }
     }
@@ -80,7 +83,16 @@ async function removeInlineBtns(chatId, messageId) {
 
 bot.onText(/\/start/, (msg) => {
   const chatId = msg.chat.id;
-  const resp = "Hello welcome to joke404. The hub of jokes."
+  const resp = `
+Hey there 👋  
+Welcome to Joke404, your daily dose of laughs (and explanations when you don't get the joke 😅).  
+
+Want to crack one right now?  
+👉 Try /joke for a random laugh  
+👉 Or /category to pick your humor style  
+
+Need more options? Type /help
+  `
 
   bot.sendMessage(chatId, resp);
 });
@@ -88,11 +100,15 @@ bot.onText(/\/start/, (msg) => {
 bot.onText(/\/help/, (msg) => {
   const chatId = msg.chat.id;
   const resp = `
-  Available commands:
-  /start - Welcome message
-  /joke - Get a random joke
-  /category - Pick a joke category
-  /help - SHow this list
+🛠️ Here's what I can do:
+
+/start — Say hi and learn what I'm about  
+/joke — Drop a random joke for you  
+/category — Pick your favorite kind of humor  
+/help — See this list again anytime  
+
+💬 Tip: You can always tap “Next” after a joke for another laugh!
+💡 Tip: Can't get the joke? Just hit “Explain” and I'll break it down!
   `
 
   bot.sendMessage(chatId, resp);
@@ -106,10 +122,15 @@ bot.onText(/\/joke/, (msg) => {
 bot.onText(/\/category/, (msg) => {
   const chatId = msg.chat.id;
   const resp = `
-  Pick a category of jokes from the below list:
-  /dark
-  /programming
-  `
+🎨 Pick your joke category:
+
+/dark — Twisted humor with a dark twist  
+/programming — For devs who debug life with laughter  
+/pun — Wordplay and clever twists  
+/spooky — Ghostly giggles and creepy chuckles  
+/misc — A surprise mix of everything!
+
+⚠️ Some jokes may include adult or sensitive themes.  `
 
   bot.sendMessage(chatId, resp);
 })
@@ -130,8 +151,24 @@ bot.on("callback_query", async (query) => {
   } else if(data.action === "explain") {
     const joke = jokeStore.get(chatId);
     const explanation = await explainJoke(joke);
+    await removeInlineBtns(chatId, messageId);
+    const options = {
+      reply_markup: {
+        inline_keyboard: [
+          [{text: "Funny 😂", callback_data: JSON.stringify({action: "funny"})},
+          {text: "Not funny 🫤", callback_data:  JSON.stringify({action: "notFunny"})},
+          {text: "Next ➡️", callback_data: JSON.stringify({action: "next"})}
+          ]
+        ]
+      }
+    }
+    bot.sendMessage(chatId, explanation, options)
+  } else if(data.action === "funny") {
     await removeInlineBtns(chatId, messageId)
-    bot.sendMessage(chatId, explanation)
+    bot.sendMessage(chatId, "Glad you liked it! 😄");
+  } else if(data.action === "notFunny") {
+    await removeInlineBtns(chatId, messageId)
+    bot.sendMessage(chatId, "Hmm, not your type huh? 🤔");
   }
 
   bot.answerCallbackQuery(query.id)

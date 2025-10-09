@@ -10,7 +10,8 @@ Explain the following joke in a friendly and natural way, as if you're chatting 
 If the joke is dark humor. Explain why it's funny, even if the humor involves something a bit morbid. 
 Don't censor or soften it — just explain the twist clearly and kindly so someone who missed it can understand.
 If the joke is confusing or based on wordplay, make sure to clarify the pun or misunderstanding.
-Keep it short (3-5 sentences) and easy to follow. 
+Keep it short 3 sentences with a max of 80 words and easy to follow. 
+Avoid filler phrases like “I can see why” — focus on the punchline.
 Use a playful tone, but don't overanalyze — just highlight the wordplay or twist that makes it funny.
   Joke:
   "${joke}"

@@ -48,7 +48,6 @@ async function fetchJoke(category) {
 
 async function deliverJoke(category, chatId) {
   try{
-    console.log({category})
     const jokeContext = await fetchJoke(category);
     const options = {
       reply_markup: {
@@ -139,6 +138,27 @@ bot.onText(/\/dark/, async (msg) => {
   const chatId = msg.chat.id;
   deliverJoke('dark', chatId);
 })
+
+bot.onText(/\/programming/, async (msg) => {
+  const chatId = msg.chat.id;
+  deliverJoke('Programming', chatId);
+})
+
+bot.onText(/\/pun/, async (msg) => {
+  const chatId = msg.chat.id;
+  deliverJoke('Pun', chatId);
+})
+
+bot.onText(/\/spooky/, async (msg) => {
+  const chatId = msg.chat.id;
+  deliverJoke('Spooky', chatId);
+})
+
+bot.onText(/\/misc/, async (msg) => {
+  const chatId = msg.chat.id;
+  deliverJoke('Misc', chatId);
+})
+
 
 bot.on("callback_query", async (query) => {
   const data = JSON.parse(query.data);

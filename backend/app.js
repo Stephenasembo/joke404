@@ -11,6 +11,10 @@ app.get("/", (req, res) => {
   res.send("Hello welcome to joke404.")
 });
 
+app.get("/health", (req, res) => {
+  res.status(200).send("OK")
+})
+
 const jokeStore = new Map();
 
 async function fetchJoke(category) {

@@ -31,6 +31,16 @@ async function fetchJoke(category) {
     case 'programming':
       url += 'Programming';
       break;
+    case 'pun':
+      url += 'Pun';
+      break;
+    case 'spooky':
+      url += 'Spooky';
+      break;
+    case 'misc':
+      url += 'Misc';
+      break;
+
     default:
       url += 'Any';
   }
@@ -156,22 +166,22 @@ bot.onText(/\/dark/, async (msg) => {
 
 bot.onText(/\/programming/, async (msg) => {
   const chatId = msg.chat.id;
-  deliverJoke('Programming', chatId);
+  deliverJoke('programming', chatId);
 })
 
 bot.onText(/\/pun/, async (msg) => {
   const chatId = msg.chat.id;
-  deliverJoke('Pun', chatId);
+  deliverJoke('pun', chatId);
 })
 
 bot.onText(/\/spooky/, async (msg) => {
   const chatId = msg.chat.id;
-  deliverJoke('Spooky', chatId);
+  deliverJoke('spooky', chatId);
 })
 
 bot.onText(/\/misc/, async (msg) => {
   const chatId = msg.chat.id;
-  deliverJoke('Misc', chatId);
+  deliverJoke('misc', chatId);
 })
 
 

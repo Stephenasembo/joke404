@@ -136,6 +136,7 @@ bot.onText(/\/help/, (msg) => {
 
 💬 Tip: You can always tap “Next” after a joke for another laugh!
 💡 Tip: Can't get the joke? Just hit “Explain” and I'll break it down!
+🔁 Note: Some jokes might repeat we're training the bot to stop repeating the same jokes. It's a slow learner 😅.
   `
 
   warmUpServer()

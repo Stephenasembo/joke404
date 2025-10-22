@@ -15,6 +15,11 @@ app.get("/health", (req, res) => {
   res.status(200).send("OK")
 })
 
+function warmUpServer() {
+  const endpoint = `${process.env.HOST_URL}/health`;
+  fetch(endpoint).catch(() => console.log('Ping failed.'))
+}
+
 const jokeStore = new Map();
 
 async function fetchJoke(category) {
@@ -52,6 +57,7 @@ async function fetchJoke(category) {
 
 async function deliverJoke(category, chatId) {
   try{
+    warmUpServer()
     const jokeContext = await fetchJoke(category);
     const options = {
       reply_markup: {
@@ -88,7 +94,9 @@ bot.onText(/\/start/, (msg) => {
   const chatId = msg.chat.id;
   const resp = `
 Hey there 👋  
-Welcome to Joke404, your daily dose of laughs (and explanations when you don't get the joke 😅).  
+Welcome to Joke404, your daily dose of laughs and explanations when you don't get the joke 😅.  
+
+⚠️ Heads-up: the first joke might take a few seconds to load while the server wakes up but we promise it's worth the wait!😎 
 
 Want to crack one right now?  
 👉 Try /joke for a random laugh  
@@ -97,6 +105,7 @@ Want to crack one right now?
 Need more options? Type /help
   `
 
+  warmUpServer()
   bot.sendMessage(chatId, resp);
 });
 
@@ -114,6 +123,7 @@ bot.onText(/\/help/, (msg) => {
 💡 Tip: Can't get the joke? Just hit “Explain” and I'll break it down!
   `
 
+  warmUpServer()
   bot.sendMessage(chatId, resp);
 });
 
@@ -135,6 +145,7 @@ bot.onText(/\/category/, (msg) => {
 
 ⚠️ Some jokes may include adult or sensitive themes.  `
 
+  warmUpServer()
   bot.sendMessage(chatId, resp);
 })
 

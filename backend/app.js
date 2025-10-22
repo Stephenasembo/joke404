@@ -88,7 +88,12 @@ async function deliverJoke(category, chatId) {
     } else {
       bot.sendMessage(chatId, jokeContext.content, options)
     }
-    jokeStore.set(chatId, jokeContext.content);
+    const jokeObj = {
+      joke: jokeContext.content,
+      category: jokeContext.category
+    }
+    jokeStore.set(chatId, jokeObj);
+    console.log({jokeContext});
   } catch (err) {
       console.error(err);
       let response = "Sorry the joke can't be cracked right now.";
@@ -194,15 +199,15 @@ bot.on("callback_query", async (query) => {
     deliverJoke(data.category, chatId);
     await removeInlineBtns(chatId, messageId)
   } else if(data.action === "explain") {
-    const joke = jokeStore.get(chatId);
-    const explanation = await explainJoke(joke);
+    const jokeObj = jokeStore.get(chatId);
+    const explanation = await explainJoke(jokeObj.joke);
     await removeInlineBtns(chatId, messageId);
     const options = {
       reply_markup: {
         inline_keyboard: [
           [{text: "Funny 😂", callback_data: JSON.stringify({action: "funny"})},
           {text: "Not funny 🫤", callback_data:  JSON.stringify({action: "notFunny"})},
-          {text: "Next ➡️", callback_data: JSON.stringify({action: "next"})}
+          {text: "Next ➡️", callback_data: JSON.stringify({action: "next", category: jokeObj.category})}
           ]
         ]
       }

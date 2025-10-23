@@ -17,7 +17,9 @@ app.get("/health", (req, res) => {
 
 function warmUpServer() {
   const endpoint = `${process.env.HOST_URL}/health`;
-  fetch(endpoint).catch(() => console.log('Ping failed.'))
+  fetch(endpoint)
+    .then(() => console.log('Server pinged successfully!'))
+    .catch(() => console.log('Ping failed.'))
 }
 
 const jokeStore = new Map();
@@ -93,7 +95,6 @@ async function deliverJoke(category, chatId) {
       category: jokeContext.category
     }
     jokeStore.set(chatId, jokeObj);
-    console.log({jokeContext});
   } catch (err) {
       console.error(err);
       let response = "Sorry the joke can't be cracked right now.";
